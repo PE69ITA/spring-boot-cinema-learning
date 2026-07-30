@@ -1,5 +1,6 @@
 package com.example.cinema.auth;
 
+import com.example.cinema.exception.EmailAlreadyExistsException;
 import com.example.cinema.security.JwtService;
 import com.example.cinema.user.UserEntity;
 import com.example.cinema.user.UserRepository;
@@ -20,6 +21,10 @@ public class AuthService {
         UserEntity user = new UserEntity();
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
+        if (userRepository.existsByEmail(request.email())) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
         userRepository.save(user);
         String token = jwtService.generateToken(user);
         return new AuthenticationResponse(token);
